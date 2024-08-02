@@ -30,7 +30,8 @@ class Program
 
     static void Main(string[] args)
     {
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+        Process.GetCurrentProcess().PriorityBoostEnabled = true;
+        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.AboveNormal;
         int numCores = Environment.ProcessorCount;
         double[,] latencies = new double[numCores, numCores];
         string cpuName = GetCpuName();
@@ -38,8 +39,8 @@ class Program
         Console.WriteLine($"UXTU V3 Core-to-Core Latency Test");
         Console.WriteLine($"CPU: {cpuName}");
         Console.WriteLine($"Number of Cores/Threads: {numCores}");
-        Console.WriteLine($"Your results will be exported to a formatted spreadsheet\n");
-
+        Console.WriteLine($"Your results will be exported to a spreadsheet with conditional formatting applied\n");
+        Thread.Sleep(1500);
         for (int i = 0; i < numCores; i++)
         {
             for (int j = 0; j < numCores; j++)
@@ -48,6 +49,7 @@ class Program
                 {
                     latencies[i, j] = Math.Round(MeasureLatency(i, j, Iterations), 2);
                     Console.WriteLine($"Latency from core {i} to core {j}: {latencies[i, j]:F2} ns");
+                    Thread.Sleep(250);
                 }
                 else
                 {
