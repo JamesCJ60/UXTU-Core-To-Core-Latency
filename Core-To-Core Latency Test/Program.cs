@@ -30,8 +30,9 @@ class Program
 
     static void Main(string[] args)
     {
+        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
         Process.GetCurrentProcess().PriorityBoostEnabled = true;
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
+
         int numCores = Environment.ProcessorCount;
         double[,] latencies = new double[numCores, numCores];
         string cpuName = GetCpuName();
@@ -145,7 +146,11 @@ class Program
             worksheet.Cells[1, 1].Style.Font.Color.SetColor(System.Drawing.Color.White);
             worksheet.Cells[1, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Black);
 
-            worksheet.Cells[2, 1].Value = "";
+            worksheet.Cells[2, 1].Value = "(ns)";
+            worksheet.Cells[2, 1].Style.Font.Bold = true;
+            worksheet.Cells[2, 1].Style.Font.Color.SetColor(System.Drawing.Color.White);
+            worksheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             worksheet.Cells[2, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
             worksheet.Cells[2, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Black);
             for (int i = 0; i < numCores; i++)
@@ -180,14 +185,15 @@ class Program
                     }
                     worksheet.Cells[i + 3, j + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 3, j + 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    //worksheet.Cells[i + 3, j + 2].Style.Font.Bold = true;
                 }
             }
 
             var range = worksheet.Cells[3, 2, numCores + 2, numCores + 1];
             var rule = range.ConditionalFormatting.AddThreeColorScale();
-            rule.LowValue.Color = System.Drawing.Color.Green;
-            rule.MiddleValue.Color = System.Drawing.Color.Yellow;
-            rule.HighValue.Color = System.Drawing.Color.Red;
+            rule.LowValue.Color = System.Drawing.ColorTranslator.FromHtml("#63be7b");
+            rule.MiddleValue.Color = System.Drawing.ColorTranslator.FromHtml("#ffe984");
+            rule.HighValue.Color = System.Drawing.ColorTranslator.FromHtml("#f96a6c");
 
             var file = new FileInfo(fileName);
             package.SaveAs(file);

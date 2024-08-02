@@ -3,18 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core-To-Core Latency Test", "Core-To-Core Latency Test\Core-To-Core Latency Test.csproj", "{A05B8F99-2917-40EB-9950-A48864FAAEAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core-To-Core Latency Test", "Core-To-Core Latency Test\Core-To-Core Latency Test.csproj", "{A05B8F99-2917-40EB-9950-A48864FAAEAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|ARM64.Build.0 = Debug|ARM64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|x64.ActiveCfg = Debug|x64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Debug|x64.Build.0 = Debug|x64
 		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|ARM64.ActiveCfg = Release|ARM64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|ARM64.Build.0 = Release|ARM64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|x64.ActiveCfg = Release|x64
+		{A05B8F99-2917-40EB-9950-A48864FAAEAD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
