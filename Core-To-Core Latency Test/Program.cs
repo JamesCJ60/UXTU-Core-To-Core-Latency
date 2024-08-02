@@ -31,7 +31,7 @@ class Program
     static void Main(string[] args)
     {
         Process.GetCurrentProcess().PriorityBoostEnabled = true;
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.AboveNormal;
+        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
         int numCores = Environment.ProcessorCount;
         double[,] latencies = new double[numCores, numCores];
         string cpuName = GetCpuName();
@@ -49,7 +49,6 @@ class Program
                 {
                     latencies[i, j] = Math.Round(MeasureLatency(i, j, Iterations), 2);
                     Console.WriteLine($"Latency from core {i} to core {j}: {latencies[i, j]:F2} ns");
-                    Thread.Sleep(250);
                 }
                 else
                 {
@@ -88,12 +87,12 @@ class Program
         startSignal.Reset();
         endSignal1.Reset();
         endSignal2.Reset();
-
-        Stopwatch stopwatch = Stopwatch.StartNew();
-        startSignal.Set();
-
+        
         t1.Start();
         t2.Start();
+        
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        startSignal.Set();
 
         Task.WaitAll(t1, t2);
         stopwatch.Stop();
