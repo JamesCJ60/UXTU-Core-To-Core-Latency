@@ -10,10 +10,6 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.Drawing;
 
-// The following code is inspired by https://github.com/ChipsandCheese/Microbenchmarks/tree/master/CoherencyLatency
-// The purpose of this program is to test the latency between cores/threads communicating with one another.
-// At the end, the program will export this data into a formatted Excel spreadsheet with conditional formatting applied.
-
 class Program
 {
     [DllImport("kernel32.dll")]
@@ -23,6 +19,7 @@ class Program
     private static extern IntPtr SetThreadAffinityMask(IntPtr hThread, IntPtr dwThreadAffinityMask);
 
     private const long Iterations = 10000000;
+    private const string OutputFileName = "CoreToCoreLatencies.xlsx";
     private static long bounceValue;
     private static ManualResetEventSlim startSignal = new ManualResetEventSlim(false);
     private static ManualResetEventSlim endSignal1 = new ManualResetEventSlim(false);
@@ -30,49 +27,55 @@ class Program
 
     static void Main(string[] args)
     {
-        Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
-        Process.GetCurrentProcess().PriorityBoostEnabled = true;
-
-        int numCores = Environment.ProcessorCount;
-        double[,] latencies = new double[numCores, numCores];
-        string cpuName = GetCpuName();
-
-        Console.WriteLine($"UXTU V3 Core-to-Core Latency Test");
-        Console.WriteLine($"CPU: {cpuName}");
-        Console.WriteLine($"Number of Cores/Threads: {numCores}");
-        Console.WriteLine($"Your results will be exported to a spreadsheet with conditional formatting applied\n");
-        Thread.Sleep(1500);
-        for (int i = 0; i < numCores; i++)
+        try
         {
-            for (int j = 0; j < numCores; j++)
+            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.RealTime;
+            Process.GetCurrentProcess().PriorityBoostEnabled = true;
+
+            int numCores = Environment.ProcessorCount;
+            double[,] latencies = new double[numCores, numCores];
+            string cpuName = GetCpuName();
+
+            Console.WriteLine($"UXTU V3 Core-to-Core Latency Test");
+            Console.WriteLine($"CPU: {cpuName}");
+            Console.WriteLine($"Number of Cores/Threads: {numCores}");
+            Console.WriteLine($"Your results will be exported to a spreadsheet with conditional formatting applied\n");
+            Thread.Sleep(1000);
+            for (int i = 0; i < numCores; i++)
             {
-                if (i != j)
+                for (int j = 0; j < numCores; j++)
                 {
-                    latencies[i, j] = Math.Round(MeasureLatency(i, j, Iterations), 2);
-                    Console.WriteLine($"Latency from core {i} to core {j}: {latencies[i, j]:F2} ns");
-                }
-                else
-                {
-                    latencies[i, j] = 0.0;
+                    if (i != j)
+                    {
+                        latencies[i, j] = Math.Round(MeasureLatency(i, j, Iterations), 2);
+                        Console.WriteLine($"Latency from core {i} to core {j}: {latencies[i, j]:F2} ns");
+                    }
+                    else latencies[i, j] = 0.0;
                 }
             }
+
+            SaveLatenciesToExcel(latencies, OutputFileName, cpuName);
+            Console.WriteLine($"Core-to-Core Latency Matrix saved to {OutputFileName}");
         }
-
-        SaveLatenciesToExcel(latencies, "CoreToCoreLatencies.xlsx", cpuName);
-
-        Console.WriteLine("Core-to-Core Latency Matrix saved to CoreToCoreLatencies.xlsx");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
     }
 
     static string GetCpuName()
     {
         string cpuName = string.Empty;
-        using (var searcher = new ManagementObjectSearcher("select Name from Win32_Processor"))
+        try
         {
-            foreach (var item in searcher.Get())
+            using (var searcher = new ManagementObjectSearcher("select Name from Win32_Processor"))
             {
-                cpuName = item["Name"].ToString();
-                break;
+                foreach (var item in searcher.Get()) cpuName = item["Name"].ToString();
             }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting CPU name: {ex.Message}");
         }
         return cpuName;
     }
@@ -88,10 +91,10 @@ class Program
         startSignal.Reset();
         endSignal1.Reset();
         endSignal2.Reset();
-        
+
         t1.Start();
         t2.Start();
-        
+
         Stopwatch stopwatch = Stopwatch.StartNew();
         startSignal.Set();
 
@@ -110,10 +113,17 @@ class Program
         startSignal.Wait();
 
         long current = startValue;
+
         while (current <= 2 * Iterations)
         {
+            // Added workload to try and counteract OoO impacting latency in modern big.LITTLE/clustered designs 
             if (Interlocked.CompareExchange(ref bounceValue, current, expectedValue) == expectedValue)
             {
+                for (int i = 0; i < 10; i++)
+                {
+                    double dummy = Math.Sqrt(i);
+                }
+
                 current += 2;
                 expectedValue += 2;
             }
@@ -175,17 +185,10 @@ class Program
                 worksheet.Cells[i + 3, 1].Style.Font.Bold = true;
                 for (int j = 0; j < numCores; j++)
                 {
-                    if (latencies[i, j] == 0.0)
-                    {
-                        worksheet.Cells[i + 3, j + 2].Value = "X";
-                    }
-                    else
-                    {
-                        worksheet.Cells[i + 3, j + 2].Value = latencies[i, j];
-                    }
+                    if (latencies[i, j] == 0.0) worksheet.Cells[i + 3, j + 2].Value = "X";
+                    else worksheet.Cells[i + 3, j + 2].Value = latencies[i, j];
                     worksheet.Cells[i + 3, j + 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     worksheet.Cells[i + 3, j + 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                    //worksheet.Cells[i + 3, j + 2].Style.Font.Bold = true;
                 }
             }
 
