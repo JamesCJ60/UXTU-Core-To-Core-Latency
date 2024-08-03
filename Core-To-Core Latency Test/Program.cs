@@ -119,22 +119,11 @@ class Program
             // Added workload to try and counteract OoO impacting latency in modern big.LITTLE/clustered designs 
             if (Interlocked.CompareExchange(ref bounceValue, current, expectedValue) == expectedValue)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    double dummy = current / 2;
-                    double dummy2 = current;
-                    dummy = Math.Sqrt(i);
-                    dummy = dummy2 * Math.Sin(dummy) + Math.Cos(i);
-                    dummy += Math.Tan(i);
-
-                    dummy2 += i;
-                    dummy2 -= i;
-                    dummy2 = (dummy2 + i) - i;
-
-                    if (dummy2 % 2 == 0) dummy += 0.1;
-                    else dummy -= 0.1;
-
-                    dummy = Math.Sin(dummy) + Math.Cos(dummy2);
+                    double dummy = Math.Sqrt(i);
+                    current += i;
+                    current -= i;
                 }
 
                 current += 2;
